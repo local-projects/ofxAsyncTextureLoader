@@ -17,7 +17,9 @@ public:
 	ofxAsyncTextureLoader();
 	bool setup();
 	void loadTextureAsync(const string& path, const function<void(shared_ptr<ofTexture>)>& completeCallback = [](shared_ptr<ofTexture> tex) {}, bool mipmapped=false);
+	void loadTextureAsync(const ofPixels& pixels, const function<void(shared_ptr<ofTexture>)>& completeCallback = [](shared_ptr<ofTexture> tex) {}, bool mipmapped=false);
 	shared_ptr<ofTexture> loadTextureSync(const string& path, bool mipmapped=false);
+	shared_ptr<ofTexture> loadTextureSync(const ofPixels& pixels, bool mipmapped=false);
 
 	void callCompleteCallbacks();
 
@@ -28,6 +30,7 @@ private:
 	std::thread textureLoaderThread;
 	struct TextureLoaderTask {
 		string path;
+		ofPixels pixels;
 		bool bMipmapped;
 		shared_ptr<ofTexture> tex;
 		function<void(shared_ptr<ofTexture>)> loadCompleteCallback;

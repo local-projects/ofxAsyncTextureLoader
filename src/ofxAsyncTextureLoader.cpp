@@ -63,6 +63,23 @@ void ofxAsyncTextureLoader::loadTextureAsync(const string &path, const function<
 	loadQueueMutex.unlock();
 }
 
+
+void ofxAsyncTextureLoader::loadTextureAsync(const ofPixels& pixels, const function<void(shared_ptr<ofTexture>)>& completeCallback, bool mipmapped)
+{
+	if (!bInitialized) {
+		ofLogError("ofxAsyncTextureLoader") << "not initialized, call setup() first";
+	}
+	TextureLoaderTask task;
+	task.path = "";
+	task.pixels = pixels;
+	task.bMipmapped = mipmapped;
+	task.tex = NULL;
+	task.loadCompleteCallback = completeCallback;
+	loadQueueMutex.lock();
+	loadQueue.push_back(task);
+	loadQueueMutex.unlock();
+}
+
 shared_ptr<ofTexture> ofxAsyncTextureLoader::loadTextureSync(const string& path, bool mipmapped)
 {
 	shared_ptr<ofTexture> tex(make_shared<ofTexture>());
@@ -76,6 +93,17 @@ shared_ptr<ofTexture> ofxAsyncTextureLoader::loadTextureSync(const string& path,
 
 	return tex;
 }
+
+shared_ptr<ofTexture> ofxAsyncTextureLoader::loadTextureSync(const ofPixels& pixels, bool mipmapped)
+{
+	shared_ptr<ofTexture> tex(make_shared<ofTexture>());
+	if (mipmapped) {
+		tex->enableMipmap();
+	}
+	tex->loadData(pixels);
+	return tex;
+}
+
 
 GLFWwindow* ofxAsyncTextureLoader::getMainContextWindow()
 {
@@ -107,7 +135,12 @@ void ofxAsyncTextureLoader::loaderThreadFunction()
 		loadQueueMutex.unlock();
 
 		for (TextureLoaderTask& task : tasks) {
-			task.tex = loadTextureSync(task.path, task.bMipmapped);
+			if(task.path.size()){
+				task.tex = loadTextureSync(task.path, task.bMipmapped);
+			}else{
+				task.tex = loadTextureSync(task.pixels, task.bMipmapped);
+			}
+
 			glFinish();
 			if (task.tex == NULL) {
 				ofLogError("ofxAsyncTextureLoader") << "error loading texture: " << task.path;
