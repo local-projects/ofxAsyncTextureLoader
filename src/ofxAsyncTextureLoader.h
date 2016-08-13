@@ -21,7 +21,6 @@ public:
 	shared_ptr<ofTexture> loadTextureSync(shared_ptr<ofPixels>, bool mipmapped=false, bool arb=false, ofTexCompression compression=OF_COMPRESS_NONE);
 	shared_ptr<ofPixels> loadPixelsSync(const string& path);
 
-
 	void callCompleteCallbacks();
 
 private:
