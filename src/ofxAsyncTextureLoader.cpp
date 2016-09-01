@@ -162,10 +162,10 @@ void ofxAsyncTextureLoader::loaderThreadFunction()
 			completeQueueMutex.lock();
 			completeQueue.push_back(task);
 			completeQueueMutex.unlock();
-			ofSleepMillis(1);
+			ofSleepMillis(10);
 		}
 
-		ofSleepMillis(1);
+		ofSleepMillis(5);
 	}
 }
 
